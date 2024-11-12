@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.9.34701.34
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "IntegracaoBaseFinanceira", "IntegracaoBaseFinanceira\IntegracaoBaseFinanceira.csproj", "{7C3E8F12-E8AC-4586-9702-108C5C8C1317}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "IntegracaoBaseFinanceiraTests", "IntegracaoBaseFinanceiraTests\IntegracaoBaseFinanceiraTests.csproj", "{1173B80B-09FC-463C-B911-C35C6324CD5F}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{7C3E8F12-E8AC-4586-9702-108C5C8C1317}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7C3E8F12-E8AC-4586-9702-108C5C8C1317}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7C3E8F12-E8AC-4586-9702-108C5C8C1317}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7C3E8F12-E8AC-4586-9702-108C5C8C1317}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1173B80B-09FC-463C-B911-C35C6324CD5F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1173B80B-09FC-463C-B911-C35C6324CD5F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1173B80B-09FC-463C-B911-C35C6324CD5F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1173B80B-09FC-463C-B911-C35C6324CD5F}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {8F1AF9CD-AC0D-461A-883F-66B8789487E3}
+	EndGlobalSection
+EndGlobal
