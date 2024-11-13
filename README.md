@@ -15,4 +15,5 @@
 	<li>GET - URL/api/financeiro/listaDesejo<li>
 	<li>POST - URL/api/financeiro/listaDesejo<li>
 	<li>UPDATE - URL/api/financeiro/listaDesejo/{id}<li>
+	<li>DELETE - URL/api/financeiro/listaDesejo/{id}<li>
 </ul>
