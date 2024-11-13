@@ -92,5 +92,28 @@ namespace IntegracaoBaseFinanceira.Controllers
                 return StatusCode(500, ex.Message);
             }
         }
+
+        [HttpDelete("{id}")]
+        public async Task<ActionResult> DeleteProduct(string id)
+        {
+            try
+            {
+                var sql = "DELETE FROM LISTA_DESEJO WHERE ID = @ID";
+
+                await _con.ExecuteAsync(sql, new
+                    {
+                        ID = id,
+                    }
+                );
+
+                _log.LogInformation("REMOVIDO O ITEM DA LISTA DE DESEJO: " + id);
+                return Ok("REMOVIDO O ITEM DA LISTA DE DESEJO: " + id);
+            }
+            catch (Exception ex)
+            {
+                _log.LogError("ERRO AO REMOVER: " + ex.Message);
+                return StatusCode(500, ex.Message);
+            }
+        }
     }
 }

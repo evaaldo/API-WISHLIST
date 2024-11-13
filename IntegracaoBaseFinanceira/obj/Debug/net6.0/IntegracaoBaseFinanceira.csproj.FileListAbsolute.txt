@@ -84,3 +84,4 @@ C:\Users\User\source\repos\IntegracaoBaseFinanceira\IntegracaoBaseFinanceira\obj
 C:\Users\User\source\repos\IntegracaoBaseFinanceira\IntegracaoBaseFinanceira\obj\Debug\net6.0\IntegracaoBaseFinanceira.pdb
 C:\Users\User\source\repos\IntegracaoBaseFinanceira\IntegracaoBaseFinanceira\obj\Debug\net6.0\IntegracaoBaseFinanceira.genruntimeconfig.cache
 C:\Users\User\source\repos\IntegracaoBaseFinanceira\IntegracaoBaseFinanceira\obj\Debug\net6.0\ref\IntegracaoBaseFinanceira.dll
+C:\Users\User\source\repos\IntegracaoBaseFinanceira\IntegracaoBaseFinanceira\obj\Debug\net6.0\IntegracaoBaseFinanceira.sourcelink.json
