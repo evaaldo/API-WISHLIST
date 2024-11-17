@@ -1,6 +1,10 @@
 ﻿using Dapper;
+using Google.Apis.Auth.OAuth2;
+using Google.Apis.Services;
+using Google.Apis.Sheets.v4;
 using IntegracaoBaseFinanceira.Models;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Identity.Client;
 using System;
 using System.Data;
 using System.Data.SqlClient;
@@ -13,11 +17,31 @@ namespace IntegracaoBaseFinanceira.Controllers
     {
         private readonly IDbConnection _con;
         private readonly ILogger<ListaDesejoController> _log;
+        static readonly string[] Scopes = { SheetsService.Scope.Spreadsheets };
+        static readonly string AplicationName = "ListaDesejo";
+        static readonly string SpreadsheetId = "15Af0Utm_QHiC0OygF3fYxlNsDc0NUJ4KsOtO3tdxVXQ";
+        static readonly string sheet = "LISTA DE DESEJO";
+        static SheetsService service;
 
         public ListaDesejoController(IDbConnection con, ILogger<ListaDesejoController> log)
         {
             _con = con;
             _log = log;
+        }
+        public static void InitializeGoogleService()
+        {
+            GoogleCredential credential;
+            using (var stream = new FileStream("client_secrets.json", FileMode.Open, FileAccess.Read))
+            {
+                credential = GoogleCredential.FromStream(stream)
+                    .CreateScoped(Scopes);
+            }
+
+            service = new SheetsService(new Google.Apis.Services.BaseClientService.Initializer()
+            {
+                HttpClientInitializer = credential,
+                ApplicationName = AplicationName,
+            });
         }
 
         [HttpGet]
@@ -115,5 +139,40 @@ namespace IntegracaoBaseFinanceira.Controllers
                 return StatusCode(500, ex.Message);
             }
         }
+
+
+        [HttpGet("/api/financeiro/listaDesejo/readSheetsProducts")]
+        public async Task<ActionResult> ReadWishListSheet()
+        {
+            try
+            {
+                if (service == null)
+                {
+                    InitializeGoogleService();
+                }
+
+                var range = $"{sheet}!A1:C9";
+                var request = service!.Spreadsheets.Values.Get(SpreadsheetId, range);
+
+                var response = request!.Execute();
+                var values = response!.Values;
+
+                if (values != null && values.Count > 0)
+                {
+                    return Ok(values);
+                }
+                else
+                {
+                    _log.LogWarning("Nenhum dado encontrado na planilha.");
+                    return StatusCode(204);
+                }
+            }
+            catch (Exception ex)
+            {
+                _log.LogError("Erro ao ler entradas da planilha: " + ex.Message);
+                return StatusCode(500, ex.Message);
+            }
+        }
+
     }
 }
