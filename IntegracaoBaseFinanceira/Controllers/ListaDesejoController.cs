@@ -2,12 +2,14 @@
 using Google.Apis.Auth.OAuth2;
 using Google.Apis.Services;
 using Google.Apis.Sheets.v4;
+using Google.Apis.Sheets.v4.Data;
 using IntegracaoBaseFinanceira.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Identity.Client;
 using System;
 using System.Data;
 using System.Data.SqlClient;
+using static Google.Apis.Sheets.v4.SpreadsheetsResource.ValuesResource;
 
 namespace IntegracaoBaseFinanceira.Controllers
 {
@@ -28,7 +30,7 @@ namespace IntegracaoBaseFinanceira.Controllers
             _con = con;
             _log = log;
         }
-        public static void InitializeGoogleService()
+        public static void ConnectToGoogle()
         {
             GoogleCredential credential;
             using (var stream = new FileStream("client_secrets.json", FileMode.Open, FileAccess.Read))
@@ -42,6 +44,24 @@ namespace IntegracaoBaseFinanceira.Controllers
                 HttpClientInitializer = credential,
                 ApplicationName = AplicationName,
             });
+        }
+
+        [HttpGet("/api/financeiro/database/listaDesejo")]
+        public async Task<IEnumerable<ListaDesejoSheet>> GetDatabaseProducts()
+        {
+            try
+            {
+                var sql = "SELECT * FROM LISTA_DESEJO";
+
+                var products = await _con.QueryAsync<ListaDesejoSheet>(sql);
+
+                return products;
+            }
+            catch (Exception ex)
+            {
+                _log.LogError("ERRO NA CONSULTA: " + ex.Message);
+                throw;
+            }
         }
 
         [HttpGet]
@@ -140,7 +160,6 @@ namespace IntegracaoBaseFinanceira.Controllers
             }
         }
 
-
         [HttpGet("/api/financeiro/listaDesejo/readSheetsProducts")]
         public async Task<ActionResult> ReadWishListSheet()
         {
@@ -148,7 +167,7 @@ namespace IntegracaoBaseFinanceira.Controllers
             {
                 if (service == null)
                 {
-                    InitializeGoogleService();
+                    ConnectToGoogle();
                 }
 
                 var range = $"{sheet}!A1:C9";
@@ -171,6 +190,90 @@ namespace IntegracaoBaseFinanceira.Controllers
             {
                 _log.LogError("Erro ao ler entradas da planilha: " + ex.Message);
                 return StatusCode(500, ex.Message);
+            }
+        }
+
+        [HttpPost("/api/financeiro/listaDesejo/addProductToSheet")]
+        public async Task<ActionResult> AddProductToSheet(ListaDesejoSheet listaDesejoSheet)
+        {
+            try
+            {
+                if(service == null)
+                {
+                    ConnectToGoogle();
+                }
+
+                string readRange = $"{sheet}!A1:C9";
+                string appendRange = $"{sheet}!A1:C9";  
+
+                var requestRead = service!.Spreadsheets.Values.Get(SpreadsheetId, readRange);
+
+                var responseRead = requestRead!.Execute();
+                var values = responseRead.Values ?? new List<IList<object>>();
+                int nextRowIndex = values.Count + 1;
+
+                var newRow = new List<object> { listaDesejoSheet.Produto, listaDesejoSheet.Preco, listaDesejoSheet.LinkAcesso };
+
+                var valueRange = new ValueRange
+                {
+                    Values = new List<IList<object>> { newRow }
+                };
+
+                var appendRequest = service.Spreadsheets.Values.Append(valueRange, SpreadsheetId, appendRange);
+                appendRequest.ValueInputOption = SpreadsheetsResource.ValuesResource.AppendRequest.ValueInputOptionEnum.USERENTERED;
+                var appendResponse = appendRequest.Execute();
+
+                return Ok($"Linha adicionada com sucesso na posição {nextRowIndex}");
+            }
+            catch (Exception ex)
+            {
+                _log.LogError("Erro ao atualizar planilha: " + ex.Message);
+                return StatusCode(500, ex.Message);
+            }
+        }
+
+        [HttpPost("/api/financeiro/listaDesejo/updateSheetWithDatabase")]
+        public async Task<ActionResult> UpdateSheetsWithDatabase()
+        {
+            try
+            {
+                if(service == null)
+                {
+                    ConnectToGoogle();
+                }
+
+                string updateRange = $"{sheet}!A1:C9";
+                var products = await this.GetDatabaseProducts();
+                var productsList = new List<IList<object>>
+                {
+                    new object[] { "PRODUTO", "PREÇO", "LINK DE ACESSO" }
+                };
+
+                foreach (var product in products)
+                {
+                    productsList.Add(new object[]
+                    {
+                        product.Produto,
+                        product.Preco,
+                        product.LinkAcesso
+                    });
+                }
+
+                var valueRange = new ValueRange
+                {
+                    Values = productsList
+                };
+
+                var updateRequest = service.Spreadsheets.Values.Update(valueRange, SpreadsheetId, updateRange);
+                updateRequest.ValueInputOption = SpreadsheetsResource.ValuesResource.UpdateRequest.ValueInputOptionEnum.USERENTERED;
+                var updateResponse = updateRequest.Execute();
+
+                return Ok("PLANILHA ATUALIZADA DE ACORDO COM BANCO DE DADOS");
+            }
+            catch (Exception ex)
+            {
+                _log.LogError("ERRO NA ATUALIZAÇÃO: " + ex.Message);
+                throw;
             }
         }
 
